@@ -1,0 +1,36 @@
+version: '3.7'
+services:
+    web:
+        container_name: "xamp"
+        build:
+            context: .
+            dockerfile: ./config/php/Dockerfile
+        volumes:
+            - "./html/:/var/www/html"
+        privileged: true
+        ports:
+            - "80:80"
+        depends_on:
+            - mysql
+    mysql:
+        container_name: xamp-db
+        build:
+            context: .
+            dockerfile: ./config/mysql/Dockerfile
+        platform: linux/x86_64
+        tty: true
+        ports:
+            - 3306:3306
+        env_file:
+             ./config/mysql/.env_mysql
+        volumes:
+        -   type: volume
+            source: mysql-data
+            target: /var/lib/mysql
+        -   type: bind
+            source: ./config/mysql/init
+            target: /docker-entrypoint-initdb.d
+        
+volumes:
+  mysql-data:
+    name: mysql-volume
